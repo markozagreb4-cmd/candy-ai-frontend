@@ -1,30 +1,38 @@
 const API = "https://candy-ai-backend-hgft.onrender.com/chat";
 
-// 🔌 SUPABASE
-const supabase = window.supabase.createClient(
-  "https://zianilmlyzugxnbefcqs.supabase.co",
-  "sb_publishable_PK_K01bdVBy8IIxwd0ztBA_tSCu1Uhp"
-);
-
-let persona = "mia";
+// 🔌 GLOBAL STATE
+let supabase;
 let user = null;
-let messageCount = parseInt(localStorage.getItem("msgCount") || "0");
+let persona = "mia";
 
-// 🔐 CHECK USER
-async function checkUser() {
-  const { data } = await supabase.auth.getUser();
-  user = data?.user;
+let messageCount = 0;
+let isPro = false;
 
-  if (!user) {
-    showLogin();
-  } else {
-    initApp(user);
+// 🚀 BOOT APP (SAFE START)
+window.addEventListener("load", async () => {
+  try {
+    supabase = window.supabase.createClient(
+      "https://zianilmlyzugxnbefcqs.supabase.co",
+      "YOUR_ANON_KEY"
+    );
+
+    const { data } = await supabase.auth.getUser();
+    user = data?.user;
+
+    if (!user) {
+      showLogin();
+    } else {
+      await initApp();
+    }
+
+  } catch (err) {
+    console.log("BOOT ERROR:", err);
+    document.body.innerHTML = "<h2 style='color:white'>App failed to load</h2>";
   }
-}
+});
 
-checkUser();
 
-// 🔐 LOGIN
+// 🔐 LOGIN SCREEN
 function showLogin() {
   document.body.innerHTML = `
     <div style="font-family:Arial;background:#0b0618;color:white;height:100vh;display:flex;justify-content:center;align-items:center;">
@@ -55,48 +63,36 @@ function showLogin() {
       data = res.data;
     }
 
-    const user = data.user;
+    const u = data?.user;
 
-    await supabase.from("profiles").upsert({
-      id: user.id,
-      email: user.email,
-      is_pro: false
-    });
+    // 🧠 create profile if not exists
+    if (u) {
+      await supabase.from("profiles").upsert({
+        id: u.id,
+        email: u.email
+      });
+    }
 
-    initApp(user);
+    location.reload();
   };
 }
 
-// 🚀 MAIN APP
-async function initApp(user) {
 
-  // 💎 PRO STATUS FUNCTION (LIVE CHECK)
-async function getProStatus(userId) {
+// 🚀 MAIN APP
+async function initApp() {
+
+  // 💎 LOAD PRO STATUS
   const { data } = await supabase
     .from("profiles")
     .select("is_pro")
-    .eq("id", userId)
+    .eq("id", user.id)
     .single();
 
-  return data?.is_pro || false;
-}
-
-// 💎 INITIAL PRO STATUS
-let isPro = await getProStatus(user.id);
-  // 🔄 LIVE PRO SYNC (svakih 5 sekundi)
-setInterval(async () => {
-  isPro = await getProStatus(user.id);
-
-  const status = document.getElementById("status");
-  if (status) {
-    status.innerText =
-      isPro ? "💎 PRO USER" : `FREE (${messageCount}/10)`;
-  }
-}, 5000);
+  isPro = data?.is_pro || false;
 
   document.body.innerHTML = `
-    <div style="font-family: Arial;background:#0b0618;color:white;min-height:100vh;display:flex;justify-content:center;align-items:center;">
-      <div style="width:420px; display:flex; flex-direction:column;">
+    <div style="font-family:Arial;background:#0b0618;color:white;min-height:100vh;display:flex;justify-content:center;align-items:center;">
+      <div style="width:420px;display:flex;flex-direction:column;">
 
         <h2 style="text-align:center;">💖 Candy AI Chat</h2>
 
@@ -105,7 +101,7 @@ setInterval(async () => {
         </div>
 
         <div id="status" style="text-align:center;margin-bottom:10px;">
-          ${isPro ? "💎 PRO USER" : `FREE (${messageCount}/10)`}
+          ${isPro ? "💎 PRO USER" : "FREE"}
         </div>
 
         <button id="proBtn" style="width:100%;padding:10px;margin-bottom:10px;background:gold;border:none;">
@@ -137,6 +133,7 @@ setInterval(async () => {
   const annaBtn = document.getElementById("annaBtn");
   const saraBtn = document.getElementById("saraBtn");
   const proBtn = document.getElementById("proBtn");
+
   const status = document.getElementById("status");
 
   function setActive(btn) {
@@ -156,18 +153,15 @@ setInterval(async () => {
 
   // 💳 STRIPE
   proBtn.onclick = async () => {
-    const res = await fetch(API.replace("/chat","/create-checkout"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: user.id
-      })
+    const res = await fetch(API.replace("/chat", "/create-checkout"), {
+      method: "POST"
     });
 
     const data = await res.json();
     if (data.url) window.location.href = data.url;
   };
 
+  // 💬 UI ADD MESSAGE
   function add(text, type) {
     const div = document.createElement("div");
     div.style.margin = "6px 0";
@@ -188,35 +182,31 @@ setInterval(async () => {
     box.scrollTop = box.scrollHeight;
   }
 
+  // 🚀 SEND MESSAGE
   async function sendMsg() {
     const text = input.value.trim();
     if (!text) return;
 
-    if (!isPro && messageCount >= 10) {
-      add("Upgrade to Pro 💎", "ai");
-      return;
-    }
-
     add(text, "user");
     input.value = "";
 
-    if (!isPro) {
-      messageCount++;
-      localStorage.setItem("msgCount", messageCount);
-      status.innerText = `FREE (${messageCount}/10)`;
+    try {
+      const res = await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: text,
+          persona,
+          userId: user.id
+        })
+      });
+
+      const data = await res.json();
+      add(data.reply || "no response", "ai");
+
+    } catch (err) {
+      add("error connecting", "ai");
     }
-
-    const res = await fetch(API, {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({
-        message: text,
-        persona
-      })
-    });
-
-    const data = await res.json();
-    add(data.reply, "ai");
   }
 
   send.onclick = sendMsg;
