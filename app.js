@@ -3,7 +3,7 @@ const API = "https://candy-ai-backend-hgft.onrender.com/chat";
 // 🔌 SUPABASE
 const supabase = window.supabase.createClient(
   "https://zianilmlyzugxnbefcqs.supabase.co",
-  "YOUR_SUPABASE_ANON_KEY" // 🔥 OVDJE UBACI PRAVI ANON KEY
+  "sb_publishable_PK_K01bdVBy8IIxwd0ztBA_tSCu1Uhp" // 🔥 OVDJE UBACI PRAVI ANON KEY
 );
 
 let persona = "mia";
