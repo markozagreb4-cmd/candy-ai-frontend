@@ -1,1 +1,23 @@
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #0b0618;
+}
 
+h2 {
+  color: white;
+}
+
+input {
+  border: none;
+  border-radius: 8px;
+  outline: none;
+}
+
+button {
+  border: none;
+  border-radius: 8px;
+  background: #ff3ea5;
+  color: white;
+  cursor: pointer;
+}
