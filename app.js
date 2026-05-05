@@ -1,61 +1,100 @@
 const API = "https://candy-ai-backend-hgft.onrender.com/chat";
 
+// 🔌 SUPABASE
+const supabase = window.supabase.createClient(
+  "https://zianilmlyzugxnbefcqs.supabase.co",
+  "YOUR_SUPABASE_ANON_KEY" // 🔥 OVDJE UBACI PRAVI ANON KEY
+);
+
 let persona = "mia";
 
-// 💰 USER STATE (FREE / PRO)
+// 👤 USER STATE
+let user = null;
+
 let isPro = localStorage.getItem("isPro") === "true";
 let messageCount = parseInt(localStorage.getItem("msgCount") || "0");
 
+// 🔐 CHECK LOGIN
+async function checkUser() {
+  const { data } = await supabase.auth.getUser();
+  user = data?.user;
+
+  if (!user) {
+    showLogin();
+  } else {
+    initApp();
+  }
+}
+
+checkUser();
+
+// 🔐 LOGIN SCREEN
+function showLogin() {
+  document.body.innerHTML = `
+    <div style="font-family:Arial;background:#0b0618;color:white;height:100vh;display:flex;justify-content:center;align-items:center;">
+      <div style="width:300px;text-align:center;">
+
+        <h2>💖 Candy AI Login</h2>
+
+        <input id="email" placeholder="Email" style="width:100%;padding:10px;">
+        <input id="password" type="password" placeholder="Password" style="width:100%;padding:10px;margin-top:10px;">
+
+        <button id="loginBtn" style="width:100%;padding:10px;margin-top:10px;background:#ff3ea5;color:white;border:none;">
+          Login / Sign up
+        </button>
+
+      </div>
+    </div>
+  `;
+
+  document.getElementById("loginBtn").onclick = async () => {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      await supabase.auth.signUp({ email, password });
+    }
+
+    location.reload();
+  };
+}
+
+// 🚀 MAIN APP
+function initApp() {
+
 document.body.innerHTML = `
-  <div style="
-    font-family: Arial;
-    background:#0b0618;
-    color:white;
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-  ">
+  <div style="font-family: Arial;background:#0b0618;color:white;min-height:100vh;display:flex;justify-content:center;align-items:center;">
     <div style="width:420px; display:flex; flex-direction:column;">
 
       <h2 style="text-align:center;">💖 Candy AI Chat</h2>
+
+      <div style="text-align:center;margin-bottom:10px;">
+        👤 ${user.email}
+      </div>
 
       <div id="status" style="text-align:center;margin-bottom:10px;">
         ${isPro ? "💎 PRO USER" : `FREE (${messageCount}/10)`}
       </div>
 
-      <!-- 💎 UPGRADE BUTTON -->
-      <button id="proBtn" style="
-        width:100%;
-        padding:10px;
-        margin-bottom:10px;
-        background:gold;
-        border:none;
-        border-radius:8px;
-        cursor:pointer;
-        font-weight:bold;
-      ">
-        💎 Upgrade to Pro ($9.99)
+      <button id="proBtn" style="width:100%;padding:10px;margin-bottom:10px;background:gold;border:none;font-weight:bold;">
+        💎 Upgrade to Pro
       </button>
 
-      <!-- PERSONA UI -->
-      <div style="display:flex; gap:10px; justify-content:center; margin-bottom:10px;">
+      <div style="display:flex;gap:10px;justify-content:center;margin-bottom:10px;">
         <button id="miaBtn">Mia 💖</button>
         <button id="annaBtn">Anna 😏</button>
         <button id="saraBtn">Sara 💭</button>
       </div>
 
-      <div id="box" style="
-        height:400px;
-        overflow:auto;
-        background:#111;
-        padding:10px;
-        border-radius:10px;
-        margin-bottom:10px;
-      "></div>
+      <div id="box" style="height:400px;overflow:auto;background:#111;padding:10px;border-radius:10px;margin-bottom:10px;"></div>
 
-      <div style="display:flex; gap:10px;">
-        <input id="input" style="flex:1; padding:10px;" placeholder="Type message...">
+      <div style="display:flex;gap:10px;">
+        <input id="input" style="flex:1;padding:10px;">
         <button id="send">Send</button>
       </div>
 
@@ -84,38 +123,18 @@ function setActive(btn) {
 
 setActive(miaBtn);
 
-// PERSONA SWITCH
-miaBtn.onclick = () => {
-  persona = "mia";
-  setActive(miaBtn);
-};
+miaBtn.onclick = () => { persona = "mia"; setActive(miaBtn); };
+annaBtn.onclick = () => { persona = "anna"; setActive(annaBtn); };
+saraBtn.onclick = () => { persona = "sara"; setActive(saraBtn); };
 
-annaBtn.onclick = () => {
-  persona = "anna";
-  setActive(annaBtn);
-};
-
-saraBtn.onclick = () => {
-  persona = "sara";
-  setActive(saraBtn);
-};
-
-// 💳 STRIPE UPGRADE
+// 💳 STRIPE
 proBtn.onclick = async () => {
-  try {
-    const res = await fetch("https://candy-ai-backend-hgft.onrender.com/create-checkout", {
-      method: "POST"
-    });
+  const res = await fetch(API.replace("/chat","/create-checkout"), {
+    method: "POST"
+  });
 
-    const data = await res.json();
-
-    if (data.url) {
-      window.location.href = data.url;
-    }
-
-  } catch (err) {
-    alert("Payment failed");
-  }
+  const data = await res.json();
+  if (data.url) window.location.href = data.url;
 };
 
 // 💬 ADD MESSAGE
@@ -139,14 +158,13 @@ function add(text, type) {
   box.scrollTop = box.scrollHeight;
 }
 
-// 🚀 SEND MESSAGE (FREE vs PRO LOGIC)
+// 🚀 SEND
 async function sendMsg() {
   const text = input.value.trim();
   if (!text) return;
 
-  // ❌ FREE LIMIT
   if (!isPro && messageCount >= 10) {
-    add("You reached free limit. Upgrade to Pro 💎", "ai");
+    add("Upgrade to Pro 💎", "ai");
     return;
   }
 
@@ -159,22 +177,17 @@ async function sendMsg() {
     status.innerText = `FREE (${messageCount}/10)`;
   }
 
-  try {
-    const res = await fetch(API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message,
-        persona
-      })
-    });
+  const res = await fetch(API, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      message: text,
+      persona
+    })
+  });
 
-    const data = await res.json();
-    add(data.reply || "No response", "ai");
-
-  } catch (err) {
-    add("Error connecting to AI", "ai");
-  }
+  const data = await res.json();
+  add(data.reply, "ai");
 }
 
 send.onclick = sendMsg;
@@ -182,3 +195,5 @@ send.onclick = sendMsg;
 input.addEventListener("keydown", e => {
   if (e.key === "Enter") sendMsg();
 });
+
+}
