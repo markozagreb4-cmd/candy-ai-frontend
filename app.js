@@ -13,7 +13,7 @@ window.addEventListener("load", async () => {
   try {
     supabase = window.supabase.createClient(
       "https://zianilmlyzugxnbefcqs.supabase.co",
-      "YOUR_ANON_KEY"
+      "sb_publishable_PK_K01bdVBy8IIxwd0ztBA_tSCu1Uhp"
     );
 
     const { data } = await supabase.auth.getUser();
