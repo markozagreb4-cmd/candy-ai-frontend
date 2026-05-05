@@ -7,7 +7,9 @@ let persona = "mia";
 
 let messageCount = 0;
 let isPro = false;
-
+window.addEventListener("load", () => {
+  document.body.innerHTML = "<h1 style='color:white'>INIT STARTED</h1>";
+});
 // 🚀 BOOT APP (SAFE START)
 window.addEventListener("load", async () => {
   try {
