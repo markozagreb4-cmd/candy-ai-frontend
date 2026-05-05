@@ -1,5 +1,7 @@
 const API = "https://candy-ai-backend-hgft.onrender.com/chat";
 
+let persona = "mia";
+
 document.body.innerHTML = `
   <div style="
     font-family: Arial;
@@ -14,8 +16,14 @@ document.body.innerHTML = `
 
       <h2 style="text-align:center;">💖 Candy AI Chat</h2>
 
+      <!-- PERSONA UI -->
+      <div style="display:flex; gap:10px; justify-content:center; margin-bottom:10px;">
+        <button id="miaBtn">Mia 💖</button>
+        <button id="annaBtn">Anna 😏</button>
+        <button id="saraBtn">Sara 💭</button>
+      </div>
+
       <div id="box" style="
-        flex:1;
         height:400px;
         overflow:auto;
         background:#111;
@@ -36,6 +44,37 @@ document.body.innerHTML = `
 const box = document.getElementById("box");
 const input = document.getElementById("input");
 const send = document.getElementById("send");
+
+const miaBtn = document.getElementById("miaBtn");
+const annaBtn = document.getElementById("annaBtn");
+const saraBtn = document.getElementById("saraBtn");
+
+function setActive(btn) {
+  [miaBtn, annaBtn, saraBtn].forEach(b => {
+    b.style.background = "";
+    b.style.color = "black";
+  });
+  btn.style.background = "#ff3ea5";
+  btn.style.color = "white";
+}
+
+setActive(miaBtn);
+
+// PERSONA SWITCH
+miaBtn.onclick = () => {
+  persona = "mia";
+  setActive(miaBtn);
+};
+
+annaBtn.onclick = () => {
+  persona = "anna";
+  setActive(annaBtn);
+};
+
+saraBtn.onclick = () => {
+  persona = "sara";
+  setActive(saraBtn);
+};
 
 function add(text, type) {
   const div = document.createElement("div");
@@ -70,7 +109,7 @@ async function sendMsg() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         message: text,
-        persona: "mia"
+        persona: persona
       })
     });
 
