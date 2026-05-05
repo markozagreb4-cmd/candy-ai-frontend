@@ -2,6 +2,10 @@ const API = "https://candy-ai-backend-hgft.onrender.com/chat";
 
 let persona = "mia";
 
+// 💰 USER STATE (FREE / PRO)
+let isPro = localStorage.getItem("isPro") === "true";
+let messageCount = parseInt(localStorage.getItem("msgCount") || "0");
+
 document.body.innerHTML = `
   <div style="
     font-family: Arial;
@@ -15,6 +19,10 @@ document.body.innerHTML = `
     <div style="width:420px; display:flex; flex-direction:column;">
 
       <h2 style="text-align:center;">💖 Candy AI Chat</h2>
+
+      <div id="status" style="text-align:center;margin-bottom:10px;">
+        ${isPro ? "💎 PRO USER" : `FREE (${messageCount}/10)`}
+      </div>
 
       <!-- 💎 UPGRADE BUTTON -->
       <button id="proBtn" style="
@@ -63,6 +71,7 @@ const miaBtn = document.getElementById("miaBtn");
 const annaBtn = document.getElementById("annaBtn");
 const saraBtn = document.getElementById("saraBtn");
 const proBtn = document.getElementById("proBtn");
+const status = document.getElementById("status");
 
 function setActive(btn) {
   [miaBtn, annaBtn, saraBtn].forEach(b => {
@@ -91,7 +100,7 @@ saraBtn.onclick = () => {
   setActive(saraBtn);
 };
 
-// 💳 STRIPE UPGRADE BUTTON
+// 💳 STRIPE UPGRADE
 proBtn.onclick = async () => {
   try {
     const res = await fetch("https://candy-ai-backend-hgft.onrender.com/create-checkout", {
@@ -102,16 +111,14 @@ proBtn.onclick = async () => {
 
     if (data.url) {
       window.location.href = data.url;
-    } else {
-      alert("Stripe error");
     }
 
   } catch (err) {
-    console.log(err);
     alert("Payment failed");
   }
 };
 
+// 💬 ADD MESSAGE
 function add(text, type) {
   const div = document.createElement("div");
   div.style.margin = "6px 0";
@@ -132,20 +139,33 @@ function add(text, type) {
   box.scrollTop = box.scrollHeight;
 }
 
+// 🚀 SEND MESSAGE (FREE vs PRO LOGIC)
 async function sendMsg() {
   const text = input.value.trim();
   if (!text) return;
 
+  // ❌ FREE LIMIT
+  if (!isPro && messageCount >= 10) {
+    add("You reached free limit. Upgrade to Pro 💎", "ai");
+    return;
+  }
+
   add(text, "user");
   input.value = "";
+
+  if (!isPro) {
+    messageCount++;
+    localStorage.setItem("msgCount", messageCount);
+    status.innerText = `FREE (${messageCount}/10)`;
+  }
 
   try {
     const res = await fetch(API, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        message: text,
-        persona: persona
+        message,
+        persona
       })
     });
 
