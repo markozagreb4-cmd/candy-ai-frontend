@@ -57,27 +57,26 @@ function showLogin() {
 
     const user = data.user;
 
-    // ✅ SPREMI USER U BAZU
     await supabase.from("profiles").upsert({
       id: user.id,
-      email: user.email
+      email: user.email,
+      is_pro: false
     });
 
-    initApp(user); // 🔥 bez reload
+    initApp(user);
   };
 }
 
 // 🚀 MAIN APP
 async function initApp(user) {
 
-  // 💎 PRO STATUS IZ BAZE
   const { data } = await supabase
     .from("profiles")
     .select("is_pro")
     .eq("id", user.id)
     .single();
 
-  const isPro = data?.is_pro;
+  let isPro = data?.is_pro || false;
 
   document.body.innerHTML = `
     <div style="font-family: Arial;background:#0b0618;color:white;min-height:100vh;display:flex;justify-content:center;align-items:center;">
@@ -142,7 +141,11 @@ async function initApp(user) {
   // 💳 STRIPE
   proBtn.onclick = async () => {
     const res = await fetch(API.replace("/chat","/create-checkout"), {
-      method: "POST"
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: user.id
+      })
     });
 
     const data = await res.json();
