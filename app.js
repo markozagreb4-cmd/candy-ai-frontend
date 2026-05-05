@@ -70,13 +70,29 @@ function showLogin() {
 // 🚀 MAIN APP
 async function initApp(user) {
 
+  // 💎 PRO STATUS FUNCTION (LIVE CHECK)
+async function getProStatus(userId) {
   const { data } = await supabase
     .from("profiles")
     .select("is_pro")
-    .eq("id", user.id)
+    .eq("id", userId)
     .single();
 
-  let isPro = data?.is_pro || false;
+  return data?.is_pro || false;
+}
+
+// 💎 INITIAL PRO STATUS
+let isPro = await getProStatus(user.id);
+  // 🔄 LIVE PRO SYNC (svakih 5 sekundi)
+setInterval(async () => {
+  isPro = await getProStatus(user.id);
+
+  const status = document.getElementById("status");
+  if (status) {
+    status.innerText =
+      isPro ? "💎 PRO USER" : `FREE (${messageCount}/10)`;
+  }
+}, 5000);
 
   document.body.innerHTML = `
     <div style="font-family: Arial;background:#0b0618;color:white;min-height:100vh;display:flex;justify-content:center;align-items:center;">
