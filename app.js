@@ -4,12 +4,12 @@ const API = "https://candy-ai-backend-hgft.onrender.com/chat";
 let supabase;
 let user = null;
 let persona = "mia";
-
 let messageCount = 0;
 let isPro = false;
 
-});
-// 🚀 BOOT APP (SAFE START)
+console.log("APP START");
+
+// 🚀 BOOT (ONLY ONE LISTENER — KRITIČNO)
 window.addEventListener("load", async () => {
   try {
     console.log("BOOT START");
@@ -21,7 +21,7 @@ window.addEventListener("load", async () => {
 
     supabase = window.supabase.createClient(
       "https://zianilmlyzugxnbefcqs.supabase.co",
-      "sb_publishable_PK_K01bdVBy8IIxwd0ztBA_tSCu1Uhp"
+      "YOUR_ANON_KEY"
     );
 
     const { data, error } = await supabase.auth.getUser();
@@ -38,9 +38,12 @@ window.addEventListener("load", async () => {
 
   } catch (err) {
     console.log("BOOT CRASH:", err);
-    document.body.innerHTML = "<h2 style='color:white'>App crashed - check console</h2>";
+    document.body.innerHTML =
+      "<h2 style='color:white'>App crashed - check console</h2>";
   }
 });
+
+
 // 🔐 LOGIN SCREEN
 function showLogin() {
   document.body.innerHTML = `
@@ -74,7 +77,6 @@ function showLogin() {
 
     const u = data?.user;
 
-    // 🧠 create profile if not exists
     if (u) {
       await supabase.from("profiles").upsert({
         id: u.id,
@@ -90,7 +92,6 @@ function showLogin() {
 // 🚀 MAIN APP
 async function initApp() {
 
-  // 💎 LOAD PRO STATUS
   const { data } = await supabase
     .from("profiles")
     .select("is_pro")
@@ -143,8 +144,6 @@ async function initApp() {
   const saraBtn = document.getElementById("saraBtn");
   const proBtn = document.getElementById("proBtn");
 
-  const status = document.getElementById("status");
-
   function setActive(btn) {
     [miaBtn, annaBtn, saraBtn].forEach(b => {
       b.style.background = "";
@@ -170,7 +169,7 @@ async function initApp() {
     if (data.url) window.location.href = data.url;
   };
 
-  // 💬 UI ADD MESSAGE
+  // 💬 ADD MESSAGE
   function add(text, type) {
     const div = document.createElement("div");
     div.style.margin = "6px 0";
