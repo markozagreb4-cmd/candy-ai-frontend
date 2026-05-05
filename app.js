@@ -11,27 +11,35 @@ let isPro = false;
 // 🚀 BOOT APP (SAFE START)
 window.addEventListener("load", async () => {
   try {
+    console.log("BOOT START");
+
+    if (!window.supabase) {
+      document.body.innerHTML = "Supabase not loaded";
+      return;
+    }
+
     supabase = window.supabase.createClient(
       "https://zianilmlyzugxnbefcqs.supabase.co",
       "sb_publishable_PK_K01bdVBy8IIxwd0ztBA_tSCu1Uhp"
     );
 
-    const { data } = await supabase.auth.getUser();
-    user = data?.user;
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error) console.log("AUTH ERROR:", error);
+
+    user = data?.user || null;
 
     if (!user) {
       showLogin();
     } else {
-      await initApp();
+      initApp();
     }
 
   } catch (err) {
-    console.log("BOOT ERROR:", err);
-    document.body.innerHTML = "<h2 style='color:white'>App failed to load</h2>";
+    console.log("BOOT CRASH:", err);
+    document.body.innerHTML = "<h2 style='color:white'>App crashed - check console</h2>";
   }
 });
-
-
 // 🔐 LOGIN SCREEN
 function showLogin() {
   document.body.innerHTML = `
