@@ -16,6 +16,20 @@ document.body.innerHTML = `
 
       <h2 style="text-align:center;">💖 Candy AI Chat</h2>
 
+      <!-- 💎 UPGRADE BUTTON -->
+      <button id="proBtn" style="
+        width:100%;
+        padding:10px;
+        margin-bottom:10px;
+        background:gold;
+        border:none;
+        border-radius:8px;
+        cursor:pointer;
+        font-weight:bold;
+      ">
+        💎 Upgrade to Pro ($9.99)
+      </button>
+
       <!-- PERSONA UI -->
       <div style="display:flex; gap:10px; justify-content:center; margin-bottom:10px;">
         <button id="miaBtn">Mia 💖</button>
@@ -48,6 +62,7 @@ const send = document.getElementById("send");
 const miaBtn = document.getElementById("miaBtn");
 const annaBtn = document.getElementById("annaBtn");
 const saraBtn = document.getElementById("saraBtn");
+const proBtn = document.getElementById("proBtn");
 
 function setActive(btn) {
   [miaBtn, annaBtn, saraBtn].forEach(b => {
@@ -74,6 +89,27 @@ annaBtn.onclick = () => {
 saraBtn.onclick = () => {
   persona = "sara";
   setActive(saraBtn);
+};
+
+// 💳 STRIPE UPGRADE BUTTON
+proBtn.onclick = async () => {
+  try {
+    const res = await fetch("https://candy-ai-backend-hgft.onrender.com/create-checkout", {
+      method: "POST"
+    });
+
+    const data = await res.json();
+
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert("Stripe error");
+    }
+
+  } catch (err) {
+    console.log(err);
+    alert("Payment failed");
+  }
 };
 
 function add(text, type) {
