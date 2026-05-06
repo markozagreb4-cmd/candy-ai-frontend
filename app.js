@@ -18,14 +18,17 @@ window.addEventListener("load", async () => {
 
     supabase = window.supabase.createClient(
       "https://zianilmlyzugxnbefcqs.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InppYW5pbG1seXp1Z3huYmVmY3FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzE4ODEsImV4cCI6MjA5MzU0Nzg4MX0.Wz6y8h5uT_00jWn5unydt4XBbPrY68gKmUqCwl390b8"
+      "TVOJ_ANON_KEY"
     );
 
-    const { data, error } = await supabase.auth.getUser();
+    let user = null;
 
-    if (error) console.log(error);
-
-    user = data?.user || null;
+    try {
+      const { data } = await supabase.auth.getUser();
+      user = data?.user ?? null;
+    } catch (e) {
+      console.log("AUTH FAIL", e);
+    }
 
     if (!user) {
       showLogin();
@@ -35,10 +38,9 @@ window.addEventListener("load", async () => {
 
   } catch (err) {
     console.log("BOOT CRASH:", err);
-    document.body.innerHTML = "❌ BOOT FAILED";
+    document.body.innerHTML = "❌ ERROR - CHECK CONSOLE";
   }
 });
-
 // 🔐 LOGIN
 function showLogin() {
   document.body.innerHTML = `
