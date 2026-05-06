@@ -17,7 +17,7 @@ window.addEventListener("load", async () => {
 
   supabase = window.supabase.createClient(
     "https://zianilmlyzugxnbefcqs.supabase.co",
-    "YOUR_ANON_KEY" // 🔴 OBAVEZNO zamijeni s pravim anon key
+    "sb_secret_bDtY6stY8KcqdhRNmrCllg_2bH5Hk-Y" // 🔴 OBAVEZNO zamijeni s pravim anon key
   );
 
   const { data } = await supabase.auth.getUser();
