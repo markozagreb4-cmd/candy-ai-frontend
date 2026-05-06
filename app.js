@@ -1,5 +1,6 @@
-const API = "https://candy-ai-backend-hgft.onrender.com/chat";
 document.body.innerHTML = "<h1 style='color:white'>APP LOADED</h1>";
+const API = "https://candy-ai-backend-hgft.onrender.com/chat";
+
 // 🔌 GLOBAL STATE
 let supabase;
 let user = null;
