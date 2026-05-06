@@ -16,7 +16,6 @@ window.addEventListener("load", async () => {
       return;
     }
 
-    // ✅ SUPABASE INIT (FIXED)
     supabase = window.supabase.createClient(
       "https://zianilmlyzugxnbefcqs.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InppYW5pbG1seXp1Z3huYmVmY3FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzE4ODEsImV4cCI6MjA5MzU0Nzg4MX0.Wz6y8h5uT_00jWn5unydt4XBbPrY68gKmUqCwl390b8"
@@ -24,7 +23,7 @@ window.addEventListener("load", async () => {
 
     const { data, error } = await supabase.auth.getUser();
 
-    if (error) console.log("AUTH ERROR:", error);
+    if (error) console.log(error);
 
     user = data?.user || null;
 
@@ -50,7 +49,7 @@ function showLogin() {
         <input id="email" placeholder="Email" style="width:100%;padding:10px;">
         <input id="password" type="password" placeholder="Password" style="width:100%;padding:10px;margin-top:10px;">
 
-        <button id="loginBtn" style="width:100%;padding:10px;margin-top:10px;background:#ff3ea5;color:white;border:none;">
+        <button id="loginBtn" style="width:100%;padding:10px;margin-top:10px;background:#ff3ea5;color:white;">
           Login / Sign up
         </button>
       </div>
