@@ -16,17 +16,17 @@ window.addEventListener("load", async () => {
       return;
     }
 
+    // ✅ SUPABASE INIT (FIXED)
     supabase = window.supabase.createClient(
-  "https://zianilmlyzugxnbefcqs.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InppYW5pbG1seXp1Z3huYmVmY3FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzE4ODEsImV4cCI6MjA5MzU0Nzg4MX0.Wz6y8h5uT_00jWn5unydt4XBbPrY68gKmUqCwl390b8"
-);
+      "https://zianilmlyzugxnbefcqs.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InppYW5pbG1seXp1Z3huYmVmY3FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzE4ODEsImV4cCI6MjA5MzU0Nzg4MX0.Wz6y8h5uT_00jWn5unydt4XBbPrY68gKmUqCwl390b8"
     );
 
-    const { data: { user: u }, error } = await supabase.auth.getUser();
+    const { data, error } = await supabase.auth.getUser();
 
-    if (error) console.log(error);
+    if (error) console.log("AUTH ERROR:", error);
 
-    user = u;
+    user = data?.user || null;
 
     if (!user) {
       showLogin();
@@ -39,6 +39,7 @@ window.addEventListener("load", async () => {
     document.body.innerHTML = "❌ BOOT FAILED";
   }
 });
+
 // 🔐 LOGIN
 function showLogin() {
   document.body.innerHTML = `
@@ -49,7 +50,7 @@ function showLogin() {
         <input id="email" placeholder="Email" style="width:100%;padding:10px;">
         <input id="password" type="password" placeholder="Password" style="width:100%;padding:10px;margin-top:10px;">
 
-        <button id="loginBtn" style="width:100%;padding:10px;margin-top:10px;background:#ff3ea5;color:white;">
+        <button id="loginBtn" style="width:100%;padding:10px;margin-top:10px;background:#ff3ea5;color:white;border:none;">
           Login / Sign up
         </button>
       </div>
