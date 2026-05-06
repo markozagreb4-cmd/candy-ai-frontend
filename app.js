@@ -20,7 +20,7 @@ window.addEventListener("load", async () => {
     "sb_secret_bDtY6stY8KcqdhRNmrCllg_2bH5Hk-Y" // 🔴 OBAVEZNO zamijeni s pravim anon key
   );
 
-  const { data } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   user = data?.user || null;
 
   if (!user) {
