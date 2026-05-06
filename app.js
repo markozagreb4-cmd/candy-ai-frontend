@@ -4,30 +4,28 @@ const API = "https://candy-ai-backend-hgft.onrender.com/chat";
 let supabase;
 let user = null;
 let persona = "mia";
-let messageCount = 0;
 let isPro = false;
 
 console.log("APP START");
 
-// 🚀 BOOT (ONLY ONE LISTENER — KRITIČNO)
+// 🚀 BOOT
 window.addEventListener("load", async () => {
   try {
     console.log("BOOT START");
 
     if (!window.supabase) {
-      document.body.innerHTML = "Supabase not loaded";
+      document.body.innerHTML = "❌ Supabase not loaded";
       return;
     }
 
+    // 🔑 INIT SUPABASE
     supabase = window.supabase.createClient(
       "https://zianilmlyzugxnbefcqs.supabase.co",
       "YOUR_ANON_KEY"
     );
 
-    const { data, error } = await supabase.auth.getUser();
-
-    if (error) console.log("AUTH ERROR:", error);
-
+    // 🔐 GET USER
+    const { data } = await supabase.auth.getUser();
     user = data?.user || null;
 
     if (!user) {
@@ -37,14 +35,13 @@ window.addEventListener("load", async () => {
     }
 
   } catch (err) {
-    console.log("BOOT CRASH:", err);
-    document.body.innerHTML =
-      "<h2 style='color:white'>App crashed - check console</h2>";
+    console.log("BOOT ERROR:", err);
+    document.body.innerHTML = "❌ App crashed (check console)";
   }
 });
 
 
-// 🔐 LOGIN SCREEN
+// 🔐 LOGIN UI
 function showLogin() {
   document.body.innerHTML = `
     <div style="font-family:Arial;background:#0b0618;color:white;height:100vh;display:flex;justify-content:center;align-items:center;">
@@ -92,14 +89,28 @@ function showLogin() {
 // 🚀 MAIN APP
 async function initApp() {
 
-  const { data } = await supabase
+  document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:50px;'>Loading...</h2>";
+
+  // 💎 GET PRO STATUS
+  const { data, error } = await supabase
     .from("profiles")
     .select("is_pro")
     .eq("id", user.id)
     .single();
 
+  if (error) {
+    console.log("PROFILE ERROR:", error);
+  }
+
   isPro = data?.is_pro || false;
 
+  // 🧠 CHECK STRIPE RETURN
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get("success")) {
+    isPro = true;
+  }
+
+  // 🎨 UI
   document.body.innerHTML = `
     <div style="font-family:Arial;background:#0b0618;color:white;min-height:100vh;display:flex;justify-content:center;align-items:center;">
       <div style="width:420px;display:flex;flex-direction:column;">
@@ -111,12 +122,14 @@ async function initApp() {
         </div>
 
         <div id="status" style="text-align:center;margin-bottom:10px;">
-          ${isPro ? "💎 PRO USER" : "FREE"}
+          ${isPro ? "💎 PRO USER" : "FREE USER"}
         </div>
 
+        ${!isPro ? `
         <button id="proBtn" style="width:100%;padding:10px;margin-bottom:10px;background:gold;border:none;">
           💎 Upgrade to Pro
         </button>
+        ` : ""}
 
         <div style="display:flex;gap:10px;justify-content:center;margin-bottom:10px;">
           <button id="miaBtn">Mia 💖</button>
@@ -160,14 +173,16 @@ async function initApp() {
   saraBtn.onclick = () => { persona = "sara"; setActive(saraBtn); };
 
   // 💳 STRIPE
-  proBtn.onclick = async () => {
-    const res = await fetch(API.replace("/chat", "/create-checkout"), {
-      method: "POST"
-    });
+  if (proBtn) {
+    proBtn.onclick = async () => {
+      const res = await fetch(API.replace("/chat", "/create-checkout"), {
+        method: "POST"
+      });
 
-    const data = await res.json();
-    if (data.url) window.location.href = data.url;
-  };
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+    };
+  }
 
   // 💬 ADD MESSAGE
   function add(text, type) {
@@ -190,7 +205,7 @@ async function initApp() {
     box.scrollTop = box.scrollHeight;
   }
 
-  // 🚀 SEND MESSAGE
+  // 🚀 SEND
   async function sendMsg() {
     const text = input.value.trim();
     if (!text) return;
