@@ -4,11 +4,7 @@
   <meta charset="UTF-8">
   <title>Candy AI</title>
 
-  <!-- SUPABASE -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- APP -->
-  <script defer src="app.js"></script>
 
   <style>
     body {
@@ -16,10 +12,154 @@
       background: #0b0618;
       color: white;
       font-family: Arial;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    #chat {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .msg {
+      margin-bottom: 12px;
+      max-width: 70%;
+      padding: 10px;
+      border-radius: 12px;
+    }
+
+    .user {
+      background: #6a5cff;
+      align-self: flex-end;
+    }
+
+    .ai {
+      background: #1e1b2e;
+      align-self: flex-start;
+    }
+
+    #inputArea {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid #222;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+    }
+
+    button {
+      margin-left: 10px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      background: #6a5cff;
+      color: white;
+      cursor: pointer;
+    }
+
+    #upgrade {
+      background: #ff4d6d;
+      margin: 10px;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 8px;
     }
   </style>
 </head>
 
 <body>
+
+<div id="chat"></div>
+
+<div id="upgrade">💎 Upgrade to PRO</div>
+
+<div id="inputArea">
+  <input id="msgInput" placeholder="Type a message..." />
+  <button onclick="sendMessage()">Send</button>
+</div>
+
+<script>
+  const API = "https://your-backend-url.com"; // 🔥 PROMIJENI
+
+  let userId = localStorage.getItem("userId");
+
+  if (!userId) {
+    userId = "user_" + Math.random().toString(36).substring(7);
+    localStorage.setItem("userId", userId);
+  }
+
+  async function checkPro() {
+    const res = await fetch(`${API}/me?userId=${userId}`);
+    const data = await res.json();
+
+    localStorage.setItem("isPro", data.isPro);
+  }
+
+  checkPro();
+
+  function addMessage(text, type) {
+    const div = document.createElement("div");
+    div.className = "msg " + type;
+    div.innerText = text;
+    document.getElementById("chat").appendChild(div);
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById("msgInput");
+    const message = input.value;
+
+    if (!message) return;
+
+    addMessage(message, "user");
+    input.value = "";
+
+    // 💎 PRO CHECK
+    const isPro = localStorage.getItem("isPro");
+
+    if (!isPro || isPro === "false") {
+      addMessage("Upgrade to PRO 💎", "ai");
+      return;
+    }
+
+    const res = await fetch(`${API}/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message,
+        persona: "mia",
+        userId
+      })
+    });
+
+    const data = await res.json();
+
+    addMessage(data.reply, "ai");
+  }
+
+  document.getElementById("upgrade").onclick = async () => {
+    const res = await fetch(`${API}/create-checkout`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ userId })
+    });
+
+    const data = await res.json();
+
+    window.location.href = data.url;
+  };
+</script>
+
 </body>
 </html>
