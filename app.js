@@ -17,8 +17,9 @@ window.addEventListener("load", async () => {
     }
 
     supabase = window.supabase.createClient(
-      "https://zianilmlyzugxnbefcqs.supabase.co",
-      "sb_publishable_PK_K01bdVBy8IIxwd0ztBA_tSCu1Uhp"
+  "https://zianilmlyzugxnbefcqs.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InppYW5pbG1seXp1Z3huYmVmY3FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzE4ODEsImV4cCI6MjA5MzU0Nzg4MX0.Wz6y8h5uT_00jWn5unydt4XBbPrY68gKmUqCwl390b8"
+);
     );
 
     const { data: { user: u }, error } = await supabase.auth.getUser();
