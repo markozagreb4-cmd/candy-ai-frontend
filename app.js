@@ -1,4 +1,5 @@
-document.body.innerHTML = "<h1 style='color:white'>APP LOADED</h1>";
+alert("APP START");
+document.body.innerHTML = "<h1 style='color:white'>RADIM</h1>";
 const API = "https://candy-ai-backend-hgft.onrender.com/chat";
 
 // 🔌 GLOBAL STATE
