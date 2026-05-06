@@ -1,5 +1,5 @@
 const API = "https://candy-ai-backend-hgft.onrender.com/chat";
-
+console.log("🔥 APP.JS LOADED");
 // 🔌 STATE
 let supabase;
 let user = null;
