@@ -1,7 +1,6 @@
+const API = "https://candy-ai-backend-hgft.onrender.com/chat";
 alert("APP START");
 document.body.innerHTML = "<h1 style='color:white'>RADIM</h1>";
-const API = "https://candy-ai-backend-hgft.onrender.com/chat";
-
 // 🔌 GLOBAL STATE
 let supabase;
 let user = null;
