@@ -8,28 +8,36 @@ let isPro = false;
 
 // 🚀 BOOT
 window.addEventListener("load", async () => {
-  console.log("BOOT START");
+  try {
+    console.log("BOOT START");
 
-  if (!window.supabase) {
-    document.body.innerHTML = "❌ Supabase not loaded";
-    return;
-  }
+    if (!window.supabase) {
+      document.body.innerHTML = "❌ Supabase SDK not loaded";
+      return;
+    }
 
-  supabase = window.supabase.createClient(
-    "https://zianilmlyzugxnbefcqs.supabase.co",
-    "sb_secret_bDtY6stY8KcqdhRNmrCllg_2bH5Hk-Y" // 🔴 OBAVEZNO zamijeni s pravim anon key
-  );
+    supabase = window.supabase.createClient(
+      "https://zianilmlyzugxnbefcqs.supabase.co",
+      "sb_publishable_PK_K01bdVBy8IIxwd0ztBA_tSCu1Uhp"
+    );
 
-  const { data: { user } } = await supabase.auth.getUser();
-  user = data?.user || null;
+    const { data: { user: u }, error } = await supabase.auth.getUser();
 
-  if (!user) {
-    showLogin();
-  } else {
-    initApp();
+    if (error) console.log(error);
+
+    user = u;
+
+    if (!user) {
+      showLogin();
+    } else {
+      initApp();
+    }
+
+  } catch (err) {
+    console.log("BOOT CRASH:", err);
+    document.body.innerHTML = "❌ BOOT FAILED";
   }
 });
-
 // 🔐 LOGIN
 function showLogin() {
   document.body.innerHTML = `
