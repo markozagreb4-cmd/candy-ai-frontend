@@ -1,6 +1,6 @@
 const SUPABASE_URL = "https://zianilmlyzugxnbefcqs.supabase.co";
-const SUPABASE_KEY = "YOUR_ANON_KEY"; // 🔥 stavi svoj key
-const API = "https://your-backend-url.com"; // 🔥 stavi backend URL
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InppYW5pbG1seXp1Z3huYmVmY3FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzE4ODEsImV4cCI6MjA5MzU0Nzg4MX0.Wz6y8h5uT_00jWn5unydt4XBbPrY68gKmUqCwl390b8"; // 🔥 stavi svoj key
+const API = "https://candy-ai-backend-hgft.onrender.com"; // 🔥 stavi backend URL
 
 let supabase;
 
