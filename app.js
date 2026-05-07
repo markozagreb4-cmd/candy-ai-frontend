@@ -196,6 +196,36 @@ async function showApp(user) {
     console.log(err);
   }
 }
+  showTyping();
+
+try {
+
+  const res = await fetch(`${API}/chat`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      message,
+      persona: "mia",
+      userId: user.id
+    })
+  });
+
+  const data = await res.json();
+
+  removeTyping();
+
+  addMessage(data.reply || "No response", "ai");
+
+} catch (err) {
+
+  removeTyping();
+
+  addMessage("Server error", "ai");
+
+  console.log(err);
+}
   // EVENTS
   document.getElementById("send").onclick = sendMessage;
 
