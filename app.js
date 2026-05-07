@@ -149,51 +149,53 @@ async function showApp(user) {
   // SEND MESSAGE
   async function sendMessage() {
 
-    const input = document.getElementById("msg");
-    const message = input.value.trim();
+  const input = document.getElementById("msg");
 
-    if (!message) return;
+  const message = input.value.trim();
 
-    addMessage(message, "user");
-    input.value = "";
+  if (!message) return;
 
-    const isPro = localStorage.getItem("isPro") === "true";
+  addMessage(message, "user");
 
-    // FREE LIMIT
-    if (false) {
-      addMessage("You reached free limit 💎 Upgrade to continue.", "ai");
-      return;
-    }
+  input.value = "";
 
-    if (!isPro) {
-      msgCount++;
-      localStorage.setItem("msgCount", String(msgCount));
-    }
+  showTyping();
 
-    showTyping();
+  try {
 
-    try {
-      const res = await fetch(`${API}/chat`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message,
-          persona: "mia",
-          userId: user.id
-        })
-      });
+    const res = await fetch(`${API}/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message,
+        persona: "mia",
+        userId: user.id
+      })
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      removeTyping();
-      addMessage(data.reply || "No response", "ai");
+    removeTyping();
 
-    } catch (err) {
-      removeTyping();
-      addMessage("Server error", "ai");
-    }
+    addMessage(
+      data.reply || "No response",
+      "ai"
+    );
+
+  } catch (err) {
+
+    removeTyping();
+
+    addMessage(
+      "Server error",
+      "ai"
+    );
+
+    console.log(err);
   }
-
+}
   // EVENTS
   document.getElementById("send").onclick = sendMessage;
 
