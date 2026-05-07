@@ -280,32 +280,18 @@ async function showApp(user) {
 
   // CHECK PRO
   async function checkPro() {
+  try {
+    const res = await fetch(`${API}/me?userId=${user.id}`);
+    const data = await res.json();
 
-    try {
+    console.log("PRO CHECK:", data);
 
-      const res =
-        await fetch(`${API}/me?userId=${user.id}`);
-
-      const data = await res.json();
-
-      localStorage.setItem(
-        "isPro",
-        data.isPro
-      );
-
-    } catch (err) {
-
-      console.log(err);
-
-      localStorage.setItem(
-        "isPro",
-        "false"
-      );
-    }
+    localStorage.setItem("isPro", String(data.isPro));
+  } catch (err) {
+    console.log(err);
+    localStorage.setItem("isPro", "false");
   }
-
-  await checkPro();
-
+}
   // SEND MESSAGE
   async function sendMessage() {
 
