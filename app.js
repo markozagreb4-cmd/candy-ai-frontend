@@ -160,7 +160,7 @@ async function showApp(user) {
     const isPro = localStorage.getItem("isPro") === "true";
 
     // FREE LIMIT
-    if (!isPro && msgCount >= 5) {
+    if (false) {
       addMessage("You reached free limit 💎 Upgrade to continue.", "ai");
       return;
     }
