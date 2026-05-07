@@ -5,7 +5,7 @@ const API = "https://candy-ai-backend-hgft.onrender.com";
 let supabase;
 
 // FREE LIMIT
-let msgCount = parseInt(localStorage.getItem("msgCount") || "0");
+let msgCount = 0;
 
 // INIT
 window.addEventListener("load", async () => {
