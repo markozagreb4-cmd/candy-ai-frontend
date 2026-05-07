@@ -311,66 +311,60 @@ async function showApp(user) {
       localStorage.getItem("isPro") === "true";
 
     // FREE LIMIT
-    if (!isPro && msgCount >= 5) {
+   const isProBool = localStorage.getItem("isPro") === "true";
 
-      addMessage(
-        "You reached the free limit 💎 Upgrade to continue.",
-        "ai"
-      );
+// FREE LIMIT
+if (!isProBool && msgCount >= 5) {
 
-      return;
-    }
+  addMessage(
+    "You reached the free limit 💎 Upgrade to continue.",
+    "ai"
+  );
 
-    // COUNT FREE MSG
-    if (!isPro) {
+  return;
+}
 
-      msgCount++;
+// COUNT FREE MSG
+if (!isProBool) {
 
-      localStorage.setItem(
-        "msgCount",
-        msgCount
-      );
-    }
+  msgCount++;
 
-    showTyping();
+  localStorage.setItem(
+    "msgCount",
+    String(msgCount)
+  );
+}
 
-    try {
+showTyping();
 
-      const res =
-        await fetch(`${API}/chat`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            message,
-            persona: "mia",
-            userId: user.id
-          })
-        });
+try {
 
-      const data =
-        await res.json();
+  const res = await fetch(`${API}/chat`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      message,
+      persona: "mia",
+      userId: user.id
+    })
+  });
 
-      removeTyping();
+  const data = await res.json();
 
-      addMessage(
-        data.reply || "No response",
-        "ai"
-      );
+  removeTyping();
 
-    } catch (err) {
+  addMessage(data.reply || "No response", "ai");
 
-      removeTyping();
+} catch (err) {
 
-      addMessage(
-        "Server error",
-        "ai"
-      );
+  removeTyping();
 
-      console.log(err);
-    }
-  }
+  addMessage("Server error", "ai");
+
+  console.log(err);
+}
 
   // SEND BUTTON
   document
